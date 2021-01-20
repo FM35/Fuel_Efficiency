@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set()
+from sklearn.linear_model import LinearRegression
 
 Auto_MPG = pd.read_csv('Auto_MPG\Auto_MPG.csv')
 
@@ -28,14 +29,12 @@ sns.distplot(Auto_MPG['acceleration'], ax = axes[2,1])
 sns.distplot(Auto_MPG['model year'], ax = axes[3,0])
 sns.distplot(Auto_MPG['origin'], ax = axes[3,1])
 
-#plt.show()
-
 log_mpg = np.log(Auto_MPG['mpg'])
 Auto_MPG['log_mpg'] = log_mpg
 
 Auto_MPG = Auto_MPG.drop(['mpg'], axis = 1)
 
-f, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8)) = plt.subplots(2, 4, sharey = True, figsize =(15,10))
+f, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8)) = plt.subplots(2, 4, sharey = False, figsize =(15,10))
 
 ax1.scatter(Auto_MPG['displacement'], Auto_MPG['log_mpg'])
 ax1.set_title('mpg and displacement')
@@ -51,8 +50,6 @@ ax4.set_title('mpg and acceleration')
 
 ax5.scatter(Auto_MPG['model year'], Auto_MPG['log_mpg'])
 ax5.set_title('mpg and model year')
-
-#plt.show()
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
@@ -71,3 +68,38 @@ cols = ['log_mpg', 'horsepower', 'acceleration', 'cylinders_4', 'cylinders_5', '
 Auto_MPG_preprocessed = Auto_MPG_with_dummies[cols]
 
 print(Auto_MPG_preprocessed)
+
+#targets and inputs
+targets = Auto_MPG_preprocessed['log_mpg']
+inputs = Auto_MPG_preprocessed.drop(['log_mpg'], axis = 1)
+
+#Feature Scaling the inputs
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(inputs)
+inputs_scaled = scaler.transform(inputs)
+
+#Splitting data into training and testing
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(inputs_scaled,targets,test_size = 0.2, random_state = 365)
+
+#making the regression model
+reg = LinearRegression()
+reg.fit(x_train, y_train)
+
+#You can check accuracy of the models by either plotting predicted values against the training ones or plotting the residuals which is the difference of between 
+#the actual ones - the predicted ones
+y_hat = reg.predict(x_train)
+#plt.scatter(y_train, y_hat)
+sns.distplot(y_train - y_hat)
+plt.title('Residuals PDF', size = 18)
+
+print(reg.score(x_train, y_train))
+print(reg.intercept_)
+
+#Putting the weights and Feature names into a dataframe
+reg_summary = pd.DataFrame(inputs.columns.values, columns = ['Features'])
+reg_summary['Weights'] = reg.coef_
+
+print(reg_summary)
+plt.show()
