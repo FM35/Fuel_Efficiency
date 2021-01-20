@@ -91,7 +91,7 @@ reg.fit(x_train, y_train)
 #the actual ones - the predicted ones
 y_hat = reg.predict(x_train)
 #plt.scatter(y_train, y_hat)
-sns.distplot(y_train - y_hat)
+#sns.distplot(y_train - y_hat)
 plt.title('Residuals PDF', size = 18)
 
 print(reg.score(x_train, y_train))
@@ -102,4 +102,29 @@ reg_summary = pd.DataFrame(inputs.columns.values, columns = ['Features'])
 reg_summary['Weights'] = reg.coef_
 
 print(reg_summary)
+
+#Plotting scatter plotting y_test against y_hat test which are predictions using the regression model
+y_hat_test = reg.predict(x_test)
+plt.scatter(y_test, y_hat_test, alpha = 0.2)
+
+#Creating a new data frame for predictions, targets and the differences between them
+df_pf = pd.DataFrame(np.exp(y_hat_test), columns = ['Prediction'])
+
+#resetting the index
+y_test = y_test.reset_index(drop = True)
+
+#Adding target, residual and percentage. ANd since we used OLS we are essentially analysing the algorithm that lies underneath
+df_pf['Target'] = np.exp(y_test)
+df_pf['Residual'] = df_pf['Target'] - df_pf['Prediction']
+df_pf['Percentage difference'] = np.absolute(df_pf['Residual']/df_pf['Target'] * 100)
+
+#displaying all the rows of the pf_df dataframe
+pd.options.display.max_rows = 999
+pd.set_option('display.float_format', lambda x:'%2f' %x)
+print(df_pf.sort_values(by = ['Percentage difference']))
+
+print('\n')
+
+print(df_pf.describe())
+
 plt.show()
