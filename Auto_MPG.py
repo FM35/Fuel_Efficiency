@@ -67,8 +67,6 @@ cols = ['log_mpg', 'horsepower', 'acceleration', 'cylinders_4', 'cylinders_5', '
 
 Auto_MPG_preprocessed = Auto_MPG_with_dummies[cols]
 
-print(Auto_MPG_preprocessed)
-
 #targets and inputs
 targets = Auto_MPG_preprocessed['log_mpg']
 inputs = Auto_MPG_preprocessed.drop(['log_mpg'], axis = 1)
@@ -101,7 +99,7 @@ print(reg.intercept_)
 reg_summary = pd.DataFrame(inputs.columns.values, columns = ['Features'])
 reg_summary['Weights'] = reg.coef_
 
-print(reg_summary)
+#print(reg_summary)
 
 #Plotting scatter plotting y_test against y_hat test which are predictions using the regression model
 y_hat_test = reg.predict(x_test)
@@ -121,10 +119,10 @@ df_pf['Percentage difference'] = np.absolute(df_pf['Residual']/df_pf['Target'] *
 #displaying all the rows of the pf_df dataframe
 pd.options.display.max_rows = 999
 pd.set_option('display.float_format', lambda x:'%2f' %x)
-print(df_pf.sort_values(by = ['Percentage difference']))
+#print(df_pf.sort_values(by = ['Percentage difference']))
 
 print('\n')
 
-print(df_pf.describe())
+#print(df_pf.describe())
 
 plt.show()
